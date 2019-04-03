@@ -1,0 +1,38 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+    <h1>Подбор игры по цене</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+              {{ message }}
+            </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.start_price.label }}<br>
+            {{ form.start_price }}<br>
+            {% for error in form.start_price.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.end_price.label }}<br>
+            {{ form.end_price }}<br>
+            {% for error in form.end_price.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+         <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

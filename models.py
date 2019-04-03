@@ -1,4 +1,4 @@
-class User:
+class UsersModel:
     """Сущность пользователей"""
     def __init__(self, connection):
         self.connection = connection
@@ -48,8 +48,7 @@ class User:
         return rows
 
 
-class Dealer:
-    """Сущность дилерских центров"""
+class DealersModel:
     def __init__(self, connection):
         self.connection = connection
 
@@ -65,7 +64,7 @@ class Dealer:
         self.connection.commit()
 
     def insert(self, name, address):
-        """Добавление дилерского центра"""
+        """Добавление магазина"""
         cursor = self.connection.cursor()
         cursor.execute('''INSERT INTO dealers 
                           (name, address) 
@@ -75,7 +74,7 @@ class Dealer:
         self.connection.commit()
 
     def exists(self, name):
-        """Поиск дилерского центра по названию"""
+        """Поиск магазина по названию"""
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM dealers WHERE name = ?",
                        name)
@@ -83,29 +82,29 @@ class Dealer:
         return (True, row[0]) if row else (False,)
 
     def get(self, dealer_id):
-        """Запрос дилерского центра по id"""
+        """Запрос магазина по id"""
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM dealers WHERE dealer_id = ?", (str(dealer_id)))
         row = cursor.fetchone()
         return row
 
     def get_all(self):
-        """Запрос всех дилерских центров"""
+        """Запрос всех магазинов"""
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM dealers")
         rows = cursor.fetchall()
         return rows
 
     def delete(self, dealer_id):
-        """Удаление дилерского центра"""
+        """Удаление магазина"""
         cursor = self.connection.cursor()
         cursor.execute('''DELETE FROM dealers WHERE dealer_id = ?''', (str(dealer_id)))
         cursor.close()
         self.connection.commit()
 
 
-class game:
-
+class CarsModel:
+    """Сущность игр"""
     def __init__(self, connection):
         self.connection = connection
 
@@ -124,7 +123,7 @@ class game:
         self.connection.commit()
 
     def insert(self, model, price, power, color, dealer):
-
+        """Добавление игры"""
         cursor = self.connection.cursor()
         cursor.execute('''INSERT INTO cars 
                           (model, price, power, color, dealer) 
@@ -134,7 +133,7 @@ class game:
         self.connection.commit()
 
     def exists(self, model):
- 
+        
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM cars WHERE model = ?",
                        model)
@@ -142,7 +141,7 @@ class game:
         return (True, row[0]) if row else (False,)
 
     def get(self, car_id):
-  
+        
         cursor = self.connection.cursor()
         cursor.execute("SELECT * FROM cars WHERE car_id = ?", (str(car_id)))
         row = cursor.fetchone()
@@ -156,21 +155,21 @@ class game:
         return rows
 
     def delete(self, car_id):
-  
+        
         cursor = self.connection.cursor()
         cursor.execute('''DELETE FROM cars WHERE car_id = ?''', (str(car_id)))
         cursor.close()
         self.connection.commit()
 
     def get_by_price(self, start_price, end_price):
-     
+        
         cursor = self.connection.cursor()
         cursor.execute("SELECT model, price, car_id FROM cars WHERE price >= ? AND price <= ?", (str(start_price), str(end_price)))
         row = cursor.fetchall()
         return row
 
     def get_by_dealer(self, dealer_id):
-      
+        
         cursor = self.connection.cursor()
         cursor.execute("SELECT model, price, car_id FROM cars WHERE dealer = ?", (str(dealer_id)))
         row = cursor.fetchall()

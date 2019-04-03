@@ -1,15 +1,15 @@
 from flask import Flask, session, redirect, render_template, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, game, Dealer
+from models import UsersModel, CarsModel, DealersModel
 from forms import LoginForm, RegisterForm, AddCarForm, SearchPriceForm, SearchDealerForm, AddDealerForm
 from db import DB
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db = DB()
-User(db.get_connection()).init_table()
-game(db.get_connection()).init_table()
-Dealer(db.get_connection()).init_table()
+UsersModel(db.get_connection()).init_table()
+CarsModel(db.get_connection()).init_table()
+DealersModel(db.get_connection()).init_table()
 
 
 @app.route('/')
@@ -27,7 +27,7 @@ def index():
     if session['username'] == 'admin':
         return render_template('index_admin.html', username=session['username'])
     # если обычный пользователь, то его на свою
-    games = game(db.get_connection()).get_all()
+    cars = CarsModel(db.get_connection()).get_all()
     return render_template('car_user.html', username=session['username'], title='Просмотр базы', cars=cars)
 
 
@@ -42,7 +42,7 @@ def login():
     if form.validate_on_submit():  # ввели логин и пароль
         user_name = form.username.data
         password = form.password.data
-        user_model = User(db.get_connection())
+        user_model = UsersModel(db.get_connection())
         # проверяем наличие пользователя в БД и совпадение пароля
         if user_model.exists(user_name)[0] and check_password_hash(user_model.exists(user_name)[1], password):
             session['username'] = user_name  # запоминаем в сессии имя пользователя и кидаем на главную
@@ -70,7 +70,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         # создать пользователя
-        users = User(db.get_connection())
+        users = UsersModel(db.get_connection())
         if form.user_name.data in [u[1] for u in users.get_all()]:
             flash('Такой пользователь уже существует')
         else:
@@ -81,16 +81,11 @@ def register():
     return render_template("register.html", title='Регистрация пользователя', form=form)
 
 
-"""Работа с играми"""
+"""Работа с автомобилями"""
 
 
 @app.route('/car_admin', methods=['GET'])
 def car_admin():
-    """
-    Вывод всей информации об всех играх
-    :return:
-    информация для авторизованного пользователя
-    """
     # если пользователь не авторизован, кидаем его на страницу входа
     if 'username' not in session:
         return redirect('/login')
@@ -99,10 +94,10 @@ def car_admin():
         flash('Доступ запрещен')
         redirect('index')
     # если обычный пользователь, то его на свою
-    games = game(db.get_connection()).get_all()
+    cars = CarsModel(db.get_connection()).get_all()
     return render_template('car_admin.html',
                            username=session['username'],
-                           title='Просмотр автомобилей',
+                           title='Просмотр игр',
                            cars=cars)
 
 
@@ -118,11 +113,11 @@ def add_car():
     if session['username'] != 'admin':
         return redirect('index')
     form = AddCarForm()
-    available_dealers = [(i[0], i[1]) for i in Dealer(db.get_connection()).get_all()]
+    available_dealers = [(i[0], i[1]) for i in DealersModel(db.get_connection()).get_all()]
     form.dealer_id.choices = available_dealers
     if form.validate_on_submit():
-        games = game(db.get_connection())
-        games.insert(model=form.model.data,
+        cars = CarsModel(db.get_connection())
+        cars.insert(model=form.model.data,
                     price=form.price.data,
                     power=form.power.data,
                     color=form.color.data,
@@ -133,12 +128,8 @@ def add_car():
 
 
 @app.route('/car/<int:car_id>', methods=['GET'])
-def game(car_id):
-    """
-    Вывод всей информации об игре
-    :return:
-    информация для авторизованного пользователя
-    """
+def car(car_id):
+
     # если пользователь не авторизован, кидаем его на страницу входа
     if 'username' not in session:
         return redirect('/login')
@@ -146,11 +137,11 @@ def game(car_id):
     '''if session['username'] != 'admin':
         return redirect(url_for('index'))'''
     # иначе выдаем информацию
-    game = game(db.get_connection()).get(car_id)
-    dealer = Dealer(db.get_connection()).get(car[5])
+    car = CarsModel(db.get_connection()).get(car_id)
+    dealer = DealersModel(db.get_connection()).get(car[5])
     return render_template('car_info.html',
                            username=session['username'],
-                           title='Просмотр автомобиля',
+                           title='Просмотр игры',
                            car=car,
                            dealer=dealer[1])
 
@@ -163,7 +154,7 @@ def search_price():
     form = SearchPriceForm()
     if form.validate_on_submit():
         # получить все машины по определенной цене
-        games = game(db.get_connection()).get_by_price(form.start_price.data, form.end_price.data)
+        cars = CarsModel(db.get_connection()).get_by_price(form.start_price.data, form.end_price.data)
         # редирект на страницу с результатами
         return render_template('car_user.html', username=session['username'], title='Просмотр базы', cars=cars)
     return render_template("search_price.html", title='Подбор по цене', form=form)
@@ -175,26 +166,21 @@ def search_dealer():
     Запрос игр, продающихся в определенном магазине
     """
     form = SearchDealerForm()
-    available_dealers = [(i[0], i[1]) for i in Dealer(db.get_connection()).get_all()]
+    available_dealers = [(i[0], i[1]) for i in DealersModel(db.get_connection()).get_all()]
     form.dealer_id.choices = available_dealers
     if form.validate_on_submit():
         #
-        cars = game(db.get_connection()).get_by_dealer(form.dealer_id.data)
+        cars = CarsModel(db.get_connection()).get_by_dealer(form.dealer_id.data)
         # редирект на главную страницу
         return render_template('car_user.html', username=session['username'], title='Просмотр базы', cars=cars)
     return render_template("search_dealer.html", title='Подбор по цене', form=form)
 
 
-'''Работа с магазином'''
 
 
 @app.route('/dealer_admin', methods=['GET'])
 def dealer_admin():
-    """
-    Вывод всей информации об магазах
-    :return:
-    информация для авторизованного пользователя
-    """
+
     # если пользователь не авторизован, кидаем его на страницу входа
     if 'username' not in session:
         return redirect('/login')
@@ -203,7 +189,7 @@ def dealer_admin():
         flash('Доступ запрещен')
         redirect('index')
     # иначе это админ
-    dealers = Dealer(db.get_connection()).get_all()
+    dealers = DealersModel(db.get_connection()).get_all()
     return render_template('dealer_admin.html',
                            username=session['username'],
                            title='Просмотр Дилерских центров',
@@ -212,7 +198,11 @@ def dealer_admin():
 
 @app.route('/dealer/<int:dealer_id>', methods=['GET'])
 def dealer(dealer_id):
-
+    """
+    Вывод всей информации о дилерском центре
+    :return:
+    информация для авторизованного пользователя
+    """
     # если пользователь не авторизован, кидаем его на страницу входа
     if 'username' not in session:
         return redirect('/login')
@@ -220,7 +210,7 @@ def dealer(dealer_id):
     if session['username'] != 'admin':
         return redirect(url_for('index'))
     # иначе выдаем информацию
-    dealer = Dealer(db.get_connection()).get(dealer_id)
+    dealer = DealersModel(db.get_connection()).get(dealer_id)
     return render_template('dealer_info.html',
                            username=session['username'],
                            title='Просмотр информации о магазине',
@@ -229,7 +219,7 @@ def dealer(dealer_id):
 
 @app.route('/add_dealer', methods=['GET', 'POST'])
 def add_dealer():
-
+    # если пользователь не авторизован, кидаем его на страницу входа
     if 'username' not in session:
         return redirect('/login')
     # если админ, то его на свою страницу
@@ -237,7 +227,7 @@ def add_dealer():
         form = AddDealerForm()
         if form.validate_on_submit():
             # создать дилера
-            dealers = Dealer(db.get_connection())
+            dealers = DealersModel(db.get_connection())
             dealers.insert(name=form.name.data, address=form.address.data)
             # редирект на главную страницу
             return redirect(url_for('index'))

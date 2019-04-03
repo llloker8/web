@@ -22,10 +22,10 @@ class RegisterForm(FlaskForm):
 
 
 class AddCarForm(FlaskForm):
-    """Форма добавления игры"""
-    model = StringField('Вид', validators=[DataRequired()])
+    """Форма игры"""
+    model = StringField('Жанр', validators=[DataRequired()])
     price = IntegerField('Цена', validators=[DataRequired()])
-    power = IntegerField('качество', validators=[DataRequired()])
+    power = IntegerField('Востребованность', validators=[DataRequired()])
     color = StringField('Цвет', validators=[DataRequired()])
     dealer_id = SelectField('Номер магазина', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Добавить игру')
@@ -46,6 +46,6 @@ class SearchPriceForm(FlaskForm):
 
 
 class SearchDealerForm(FlaskForm):
-    """Форма поиска по магазину"""
-    dealer_id = SelectField('Номер магазина', coerce=int, validators=[DataRequired()])
+    """Форма поиска по дилерскому центру"""
+    dealer_id = SelectField('Номер дилерского центра', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Поиск')

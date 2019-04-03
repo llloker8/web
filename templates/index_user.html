@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+ 
+{% block content %}
+    <h1>Привет, {{ username }}!</h1>
+
+{% if "username" in session %}
+    <div class="btn-group btn-group-lg" role="group" aria-label="Действия">
+        <a href="{{ url_for('search_price') }}"><button type="button" class="btn btn-info">Фильтр по цене</button></a>
+        <a href="{{ url_for('search_dealer') }}"><button type="button" class="btn btn-info">Фильтр по дилерскому центру</button></a>
+    </div>
+    {% for item in cars %}
+        <div class="alert alert-dark" role="alert">
+            <h2><a href="/car/{{ item[2] }}">{{item[0]}}</a></h2>
+            <div>{{item[1]}}</div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

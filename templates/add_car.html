@@ -1,0 +1,65 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+    <h1>Добавление игры</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+              {{ message }}
+            </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.model.label }}<br>
+            {{ form.model }}<br>
+            {% for error in form.model.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.price.label }}<br>
+            {{ form.price }}<br>
+            {% for error in form.price.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.power.label }}<br>
+            {{ form.power }}<br>
+            {% for error in form.power.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.color.label }}<br>
+            {{ form.color }}<br>
+            {% for error in form.color.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.dealer_id.label }}<br>
+            {{ form.dealer_id }}<br>
+            {% for error in form.dealer_id.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+         <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
